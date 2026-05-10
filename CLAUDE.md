@@ -106,6 +106,8 @@ src/
 | `docs/design-system/elevation.md` | 깊이/그림자 작업 시 |
 | `docs/design-system/spacing.md` | 간격/레이아웃 작업 시 |
 
+새 컴포넌트 생성 시 `/new-component [컴포넌트 설명]` Skill을 사용한다.
+
 ## Commit Convention
 
 커밋 전 husky pre-commit 훅이 lint-staged를 실행하고, commit-msg 훅이 commitlint를 실행한다.

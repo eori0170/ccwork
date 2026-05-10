@@ -17,8 +17,12 @@ dist-ssr/
 .env.local
 .env.*.local
 
-# Claude Code personal settings
+# Claude Code personal settings (local config 제외)
 .claude/
+!.claude/commands/
+!.claude/commands/**
+!.claude/hooks/
+!.claude/hooks/**
 
 # Editor
 .vscode/*
