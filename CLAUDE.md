@@ -93,6 +93,19 @@ src/
 - ESLint: flat config, TypeScript + React Hooks 규칙
 - Strict TypeScript (noUnusedLocals, noUnusedParameters)
 
+## Design System
+
+스타일 작업 시 반드시 `docs/design-system/` 를 참조한다.
+
+| 파일 | 로드 시점 |
+|---|---|
+| `docs/design-system/tokens.md` | **모든 스타일 작업** — 컬러 토큰 전체 매핑 |
+| `docs/design-system/rules.md` | **모든 스타일 작업** — Do's & Don'ts 절대 규칙 |
+| `docs/design-system/components.md` | 컴포넌트 작성/수정 시 |
+| `docs/design-system/typography.md` | 텍스트/폰트 작업 시 |
+| `docs/design-system/elevation.md` | 깊이/그림자 작업 시 |
+| `docs/design-system/spacing.md` | 간격/레이아웃 작업 시 |
+
 ## Commit Convention
 
 커밋 전 husky pre-commit 훅이 lint-staged를 실행하고, commit-msg 훅이 commitlint를 실행한다.
