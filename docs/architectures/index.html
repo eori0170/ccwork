@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes App - Architecture Diagram</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+      color: #1a1a1a;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      margin-bottom: 2rem;
+      color: #333;
+    }
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .section h2 {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Notes App Architecture</h1>
+
+  <div class="section">
+    <h2>Component Dependency Graph</h2>
+    <pre class="mermaid">
+graph TD
+  subgraph Entry
+    main.tsx["main.tsx"]
+  end
+
+  subgraph App Layer
+    App["App.tsx"]
+  end
+
+  subgraph Context Layer
+    NotesProvider["NotesProvider"]
+    useNotes["useNotes()"]
+  end
+
+  subgraph Components
+    Layout["Layout"]
+    NoteList["NoteList"]
+    NoteItem["NoteItem"]
+    NoteEditor["NoteEditor"]
+  end
+
+  subgraph API Layer
+    notesApi["api/notes.ts"]
+  end
+
+  subgraph Types
+    NoteType["types/note.ts"]
+  end
+
+  subgraph External
+    JSONServer["JSON Server :3001"]
+  end
+
+  main.tsx --> App
+  App --> NotesProvider
+  App --> Layout
+  App --> NoteList
+  App --> NoteEditor
+
+  Layout -.->|"sidebar: ReactNode"| NoteList
+  Layout -.->|"main: ReactNode"| NoteEditor
+
+  NoteList --> useNotes
+  NoteList --> NoteItem
+  NoteEditor --> useNotes
+
+  NotesProvider --> notesApi
+  notesApi --> JSONServer
+
+  notesApi --> NoteType
+  NotesProvider --> NoteType
+  NoteItem --> NoteType
+
+  style Entry fill:#e8f5e9,stroke:#43a047
+  style notesApi fill:#fff3e0,stroke:#fb8c00
+  style JSONServer fill:#fce4ec,stroke:#e53935
+  style NotesProvider fill:#e3f2fd,stroke:#1e88e5
+  style useNotes fill:#e3f2fd,stroke:#1e88e5
+    </pre>
+  </div>
+
+  <div class="section">
+    <h2>State &amp; Data Flow</h2>
+    <pre class="mermaid">
+flowchart LR
+  subgraph Browser
+    direction TB
+    User["User Action"]
+    NoteEditor2["NoteEditor"]
+    NoteList2["NoteList"]
+  end
+
+  subgraph Context["NotesContext"]
+    direction TB
+    State["state: notes[], loading, error"]
+    CreateNote["createNote()"]
+    UpdateNote["updateNote()"]
+    DeleteNote["deleteNote()"]
+  end
+
+  subgraph API["api/notes.ts"]
+    fetch["fetch()"]
+  end
+
+  subgraph Server
+    DB["db.json"]
+  end
+
+  User -->|"click save"| NoteEditor2
+  User -->|"click delete"| NoteList2
+
+  NoteEditor2 -->|"useNotes()"| CreateNote
+  NoteEditor2 -->|"useNotes()"| UpdateNote
+  NoteList2 -->|"useNotes()"| DeleteNote
+
+  CreateNote --> fetch
+  UpdateNote --> fetch
+  DeleteNote --> fetch
+
+  fetch -->|"HTTP"| DB
+  DB -->|"response"| fetch
+  fetch -->|"result"| State
+  State -->|"re-render"| NoteEditor2
+  State -->|"re-render"| NoteList2
+
+  style User fill:#f3e5f5,stroke:#8e24aa
+  style State fill:#e3f2fd,stroke:#1e88e5
+  style DB fill:#fce4ec,stroke:#e53935
+    </pre>
+  </div>
+
+  <div class="section">
+    <h2>App.tsx Local State</h2>
+    <pre class="mermaid">
+stateDiagram-v2
+  [*] --> Idle : init
+  Idle --> NoteSelected : handleSelectNote(id)
+  Idle --> Creating : handleNewNote()
+  NoteSelected --> Creating : handleNewNote()
+  NoteSelected --> NoteSelected : handleSelectNote(otherId)
+  Creating --> Idle : handleDone()
+  NoteSelected --> Idle : handleDone()
+
+  state Idle {
+    selectedNoteId = null
+    isCreating = false
+  }
+  state NoteSelected {
+    selectedNoteId = id
+    isCreating = false
+  }
+  state Creating {
+    selectedNoteId = null
+    isCreating = true
+  }
+    </pre>
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+    });
+  </script>
+</body>
+</html>
